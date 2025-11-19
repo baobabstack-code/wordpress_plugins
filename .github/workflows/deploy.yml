@@ -1,0 +1,45 @@
+name: Deploy to Sandbox
+
+on:
+  push:
+    branches:
+      - master  # Deploy when pushing to master branch
+  workflow_dispatch:  # Allow manual deployment trigger
+
+jobs:
+  deploy:
+    name: Deploy WordPress Plugin
+    runs-on: ubuntu-latest
+    
+    # Add condition to control when deployment runs
+    if: contains(github.event.head_commit.message, '[deploy]') || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+      
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+      
+      - name: Deploy to Sandbox via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.idea/**
+            **/composer.json
+            **/composer.lock
+            **/.gitignore
+            **/README.md
