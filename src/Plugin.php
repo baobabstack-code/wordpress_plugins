@@ -20,6 +20,7 @@ class Plugin {
         $this->load_dependencies();
         $this->define_admin_hooks();
         $this->define_public_hooks();
+        $this->define_integration_hooks();
     }
 
     /**
@@ -48,6 +49,17 @@ class Plugin {
 
         $this->loader->add_action('wp_enqueue_scripts', $public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $public, 'enqueue_scripts');
+    }
+
+    /**
+     * Register integration hooks
+     */
+    private function define_integration_hooks() {
+        // Gravity Forms Webhook Integration
+        if (class_exists('GFForms')) {
+            $gravity_webhook = new Integrations\GravityFormsWebhook();
+            $this->loader->add_action('gform_after_submission', $gravity_webhook, 'handle_submission', 10, 2);
+        }
     }
 
     /**
