@@ -1,57 +1,50 @@
 <?php
 /**
- * Plugin Name: My Custom Plugin
- * Plugin URI: https://github.com/baobabstack-code/wordpress_plugin
- * Description: A boilerplate WordPress plugin with modern architecture
- * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://yourwebsite.com
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: my-custom-plugin
- * Domain Path: /languages
- * Requires at least: 5.8
- * Requires PHP: 7.4
+ * Plugin Name: Gravity Forms Webhook Integration
+ * Description: Sends Gravity Forms submissions to an external API using the gform_after_submission hook.
+ * Version: 1.0
+ * Author: Nyasha Ushewokunze
  */
 
-// If this file is called directly, abort.
-if (!defined('WPINC')) {
-    die;
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
 }
 
-// Plugin version
-define('MY_CUSTOM_PLUGIN_VERSION', '1.0.0');
-
-// Plugin directory path
-define('MY_CUSTOM_PLUGIN_PATH', plugin_dir_path(__FILE__));
-
-// Plugin directory URL
-define('MY_CUSTOM_PLUGIN_URL', plugin_dir_url(__FILE__));
-
-// Autoload classes using Composer
-require_once MY_CUSTOM_PLUGIN_PATH . 'vendor/autoload.php';
+// Hook into Gravity Forms after a form is submitted
+add_action('gform_after_submission', 'gf_send_to_webhook', 10, 2);
 
 /**
- * Plugin activation hook
+ * Sends GF entry data to an external webhook URL.
+ *
+ * @param array $entry  The form entry data.
+ * @param array $form   The form object.
  */
-function activate_my_custom_plugin() {
-    MyCustomPlugin\Activator::activate();
-}
-register_activation_hook(__FILE__, 'activate_my_custom_plugin');
+function gf_send_to_webhook($entry, $form) {
 
-/**
- * Plugin deactivation hook
- */
-function deactivate_my_custom_plugin() {
-    MyCustomPlugin\Deactivator::deactivate();
-}
-register_deactivation_hook(__FILE__, 'deactivate_my_custom_plugin');
+    // 1. Add your Webhook URL here (Webhook.site gives you a unique URL)
+    $webhook_url = 'https://webhook.site/https://webhook.site/6d297428-e170-4881-859f-5c8c63537efd';
 
-/**
- * Initialize and run the plugin
- */
-function run_my_custom_plugin() {
-    $plugin = new MyCustomPlugin\Plugin();
-    $plugin->run();
+    // 2. Prepare data to send
+    $data = [];
+
+    foreach ($form['fields'] as $field) {
+        $field_id = $field->id;
+        $label = $field->label;
+        $value = rgar($entry, $field_id);
+
+        $data[$label] = $value;
+    }
+
+    // 3. Send using wp_remote_post()
+    $response = wp_remote_post($webhook_url, [
+        'method'  => 'POST',
+        'headers' => ['Content-Type' => 'application/json'],
+        'body'    => json_encode($data),
+        'timeout' => 20,
+    ]);
+
+    // Optional: Log errors to debug log
+    if (is_wp_error($response)) {
+        error_log('GF Webhook Error: ' . $response->get_error_message());
+    }
 }
-run_my_custom_plugin();
