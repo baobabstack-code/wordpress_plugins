@@ -23,7 +23,7 @@ The workflow will also run on every push to `master`, but will only deploy if th
 
 ## Required Secrets
 
-Configure these secrets in your GitHub repository settings (**Settings → Secrets and variables → Actions**):
+Configure these secrets in your GitHub repository settings (**Settings > Secrets and variables > Actions**):
 
 | Secret Name | Description | Example |
 |------------|-------------|---------|
@@ -35,7 +35,7 @@ Configure these secrets in your GitHub repository settings (**Settings → Secre
 ## Setting Up Secrets
 
 1. Go to your repository on GitHub
-2. Click **Settings** → **Secrets and variables** → **Actions**
+2. Click **Settings > Secrets and variables > Actions**
 3. Click **New repository secret**
 4. Add each secret listed above
 
@@ -59,8 +59,16 @@ Configure these secrets in your GitHub repository settings (**Settings → Secre
 - **Deployment not running?** Check that your commit message includes `[deploy]`
 - **FTP connection failed?** Verify FTP credentials in repository secrets
 - **Permission errors?** Ensure FTP user has write permissions to the target directory
-- **View logs**: Go to Actions tab → Select the workflow run → View logs
+- **View logs**: Go to Actions tab > Select the workflow run > View logs
 
 ## Alternative: SSH Deployment
 
 If you prefer SSH over FTP, you can modify `.github/workflows/deploy.yml` to use SSH deployment action instead. Replace the FTP Deploy Action with an SSH-based action like `appleboy/ssh-action`.
+
+## Using the Event Ticket PDF Template
+
+1. Activate the standalone `Gravity PDF - Event Ticket Template` plugin located in `event-ticket-pdf/`.
+2. Ensure the [Gravity PDF](https://gravitypdf.com/) plugin is installed and active alongside Gravity Forms.
+3. In the form's **Settings > PDF**, create a new PDF feed and pick **Event Ticket (SimplyBiz)** from the template list.
+4. For automatic field detection, label your form fields: **Event Name**, **Registrant Name**, **Number of Attendees**, **Add-ons** (checkbox/multi-select recommended), and optionally **Company Logo** (file upload). The template will gracefully fall back if a value is missing.
+5. The QR code uses the Gravity Forms `{entry:url}` merge tag; ensure the form confirmations/permissions allow viewing the entry if you want the QR to be scannable.
