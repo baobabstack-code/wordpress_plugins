@@ -19,9 +19,23 @@ function gpet_init() {
 		return;
 	}
 
+	add_filter( 'gfpdf_template_paths', 'gpet_add_template_path' );
 	add_filter( 'gfpdf_custom_templates', 'gpet_register_template' );
 }
 add_action( 'plugins_loaded', 'gpet_init' );
+
+/**
+ * Add the plugin templates path so Gravity PDF can auto-discover the template.
+ *
+ * @param array $paths Template search paths.
+ *
+ * @return array
+ */
+function gpet_add_template_path( $paths ) {
+	$paths[] = plugin_dir_path( __FILE__ ) . 'templates/';
+
+	return $paths;
+}
 
 /**
  * Add the Event Ticket template to Gravity PDF.
@@ -36,7 +50,7 @@ function gpet_register_template( $templates ) {
 		'description' => __( 'Clean event ticket layout with attendee summary, add-ons, QR code, and logo.', 'gpet' ),
 		'type'        => 'universal',
 		'group'       => __( 'SimplyBiz', 'gpet' ),
-		'path'        => plugin_dir_path( __FILE__ ) . 'templates/event-ticket.php',
+		'path'        => plugin_dir_path( __FILE__ ) . 'templates/event-ticket/template.php',
 	);
 
 	return $templates;

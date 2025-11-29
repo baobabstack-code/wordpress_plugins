@@ -1,15 +1,15 @@
 <?php
 /**
  * Template Name: Event Ticket
- * Version: 1.0.0
- * Description: Clean, professional ticket layout with attendee summary, add-ons, QR link back to the entry, and space for branding.
+ * Version: 1.1.0
+ * Description: Clean event ticket PDF with attendee summary, add-ons, QR link back to the entry, and branding space.
  * Author: Nyasha Ushewokunze
  * Group: SimplyBiz
  * Required PDF Version: 6.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if ( ! defined( 'ABSPATH' ) || ! class_exists( 'GFForms' ) ) {
+	return;
 }
 
 /**
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param array $form    Gravity Forms form object.
  * @param array $targets Array of label strings to match.
  *
- * @return object|null
+ * @return GF_Field|null
  */
 function gfwi_et_find_field_by_label( $form, array $targets ) {
 	$normalized_targets = array_map(
@@ -71,7 +71,6 @@ function gfwi_et_value_by_labels( $form, $entry, array $labels ) {
 	$field_id = (string) $field->id;
 
 	if ( class_exists( 'GFCommon' ) && ! empty( $field->label ) ) {
-		// Use a merge tag to get the display value (handles choices / inputs nicely).
 		$merge_tag = sprintf( '{%s:%d}', $field->label, $field->id );
 		$value     = GFCommon::replace_variables( $merge_tag, $form, $entry, false, false, false, 'text' );
 	} else {
@@ -110,23 +109,11 @@ function gfwi_et_get_addons( $form, $entry ) {
 	);
 }
 
-$event_name = gfwi_et_value_by_labels( $form, $entry, array( 'event name', 'event', 'event title' ) );
-$registrant = gfwi_et_value_by_labels( $form, $entry, array( 'registrant name', 'name', 'full name', 'attendee name' ) );
-$attendees  = gfwi_et_value_by_labels( $form, $entry, array( 'number of attendees', 'attendees', 'guests', 'guest count' ) );
-$addons     = gfwi_et_get_addons( $form, $entry );
-$logo_url   = gfwi_et_value_by_labels( $form, $entry, array( 'company logo', 'logo' ) );
-$entry_link = class_exists( 'GFCommon' ) ? GFCommon::replace_variables( '{entry:url}', $form, $entry ) : '';
-
-$qr_url = '';
-if ( ! empty( $entry_link ) ) {
-	$qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . rawurlencode( $entry_link );
-}
-
 /**
  * Render a friendly value with fallback text.
  *
- * @param string|array $value     The value to show.
- * @param string       $fallback  Fallback text when missing.
+ * @param string|array $value    The value to show.
+ * @param string       $fallback Fallback text when missing.
  *
  * @return string
  */
@@ -140,9 +127,28 @@ function gfwi_et_display_value( $value, $fallback = 'Not provided' ) {
 	return '' !== $value ? $value : $fallback;
 }
 
+$event_name   = gfwi_et_value_by_labels( $form, $entry, array( 'event name', 'event', 'event title' ) );
+$registrant   = gfwi_et_value_by_labels( $form, $entry, array( 'registrant name', 'name', 'full name', 'attendee name' ) );
+$attendees    = gfwi_et_value_by_labels( $form, $entry, array( 'number of attendees', 'attendees', 'guests', 'guest count' ) );
+$addons       = gfwi_et_get_addons( $form, $entry );
+$logo_url     = gfwi_et_value_by_labels( $form, $entry, array( 'company logo', 'logo' ) );
+$event_date   = gfwi_et_value_by_labels( $form, $entry, array( 'event date', 'date', 'booking date' ) );
+$event_time   = gfwi_et_value_by_labels( $form, $entry, array( 'event time', 'time', 'start time' ) );
+$event_place  = gfwi_et_value_by_labels( $form, $entry, array( 'location', 'venue', 'address', 'event location' ) );
+$entry_link   = class_exists( 'GFCommon' ) ? GFCommon::replace_variables( '{entry:url}', $form, $entry ) : '';
+$entry_id     = gfwi_et_display_value( rgar( $entry, 'id' ), 'N/A' );
+
+$qr_url = '';
+if ( ! empty( $entry_link ) ) {
+	$qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' . rawurlencode( $entry_link );
+}
+
 ?>
 
 <style>
+@page {
+	margin: 20mm 16mm;
+}
 :root {
 	--bg: #f6f7fb;
 	--card: #ffffff;
@@ -153,6 +159,7 @@ function gfwi_et_display_value( $value, $fallback = 'Not provided' ) {
 	--divider: #e3e7ee;
 }
 body {
+	margin: 0;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: var(--text);
 }
@@ -270,6 +277,22 @@ body {
 	display: block;
 	margin-top: 8px;
 }
+.ticket__footer {
+	border-top: 1px dashed var(--divider);
+	padding: 14px 28px 22px;
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--muted);
+	font-size: 12px;
+}
+.ticket__footer a {
+	color: var(--accent);
+	text-decoration: none;
+}
+.ticket__footer a:hover {
+	text-decoration: underline;
+}
 @media (max-width: 640px) {
 	.ticket__body {
 		grid-template-columns: 1fr;
@@ -300,9 +323,7 @@ body {
 			<div class="ticket__meta" style="padding:0;max-width:320px;grid-template-columns:1fr;">
 				<div class="ticket__item">
 					<div class="ticket__label">Entry ID</div>
-					<div class="ticket__value">
-						<?php echo esc_html( rgar( $entry, 'id', '—' ) ); ?>
-					</div>
+					<div class="ticket__value"><?php echo esc_html( $entry_id ); ?></div>
 				</div>
 			</div>
 		</div>
@@ -316,11 +337,24 @@ body {
 				<div class="ticket__label">Attendees</div>
 				<div class="ticket__value"><?php echo esc_html( gfwi_et_display_value( $attendees, 'Not specified' ) ); ?></div>
 			</div>
+			<div class="ticket__item">
+				<div class="ticket__label">Date &amp; Time</div>
+				<div class="ticket__value">
+					<?php
+					$date_time_parts = array_filter( array( gfwi_et_display_value( $event_date, '' ), gfwi_et_display_value( $event_time, '' ) ) );
+					echo esc_html( ! empty( $date_time_parts ) ? implode( ' at ', $date_time_parts ) : 'To be confirmed' );
+					?>
+				</div>
+			</div>
+			<div class="ticket__item">
+				<div class="ticket__label">Location</div>
+				<div class="ticket__value"><?php echo esc_html( gfwi_et_display_value( $event_place, 'TBA' ) ); ?></div>
+			</div>
 		</div>
 
 		<div class="ticket__body">
 			<div class="ticket__addons">
-				<h3>Add-ons & Extras</h3>
+				<h3>Add-ons &amp; Extras</h3>
 				<?php if ( ! empty( $addons ) ) : ?>
 					<ul>
 						<?php foreach ( $addons as $addon ) : ?>
@@ -340,6 +374,15 @@ body {
 					<small>QR code unavailable (no entry URL).</small>
 				<?php endif; ?>
 			</div>
+		</div>
+
+		<div class="ticket__footer">
+			<span>Present this ticket at the event for a smooth check-in.</span>
+			<?php if ( $entry_link ) : ?>
+				<span>Entry link: <a href="<?php echo esc_url( $entry_link ); ?>"><?php echo esc_html( $entry_link ); ?></a></span>
+			<?php else : ?>
+				<span>Keep this ticket handy.</span>
+			<?php endif; ?>
 		</div>
 	</div>
 </div>
