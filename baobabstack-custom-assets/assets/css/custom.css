@@ -1,0 +1,91 @@
+/* Public-facing CSS: modern, minimal starter styles (scoped to Baobabstack utility classes) */
+
+:root {
+    --ba-color-bg: #0f172a;
+    --ba-color-surface: #111827;
+    --ba-color-accent: #8b5cf6;
+    --ba-color-accent-2: #22d3ee;
+    --ba-color-text: #e5e7eb;
+    --ba-color-muted: #9ca3af;
+    --ba-radius: 14px;
+    --ba-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    --ba-font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.baobabstack-section {
+    font-family: var(--ba-font);
+    color: var(--ba-color-text);
+    background: radial-gradient(circle at 20% 20%, rgba(136, 84, 255, 0.2), transparent 35%),
+                radial-gradient(circle at 80% 0%, rgba(34, 211, 238, 0.15), transparent 40%),
+                var(--ba-color-bg);
+    padding: 48px 24px;
+}
+
+.baobabstack-grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.baobabstack-card {
+    background: linear-gradient(145deg, var(--ba-color-surface), #0b1224);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--ba-radius);
+    padding: 20px;
+    box-shadow: var(--ba-shadow);
+    backdrop-filter: blur(8px);
+}
+
+.baobabstack-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    letter-spacing: 0.2px;
+}
+
+.baobabstack-card p {
+    margin: 0;
+    color: var(--ba-color-muted);
+    line-height: 1.6;
+}
+
+.baobabstack-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, var(--ba-color-accent), var(--ba-color-accent-2));
+    color: #0b1021;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.baobabstack-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(34, 211, 238, 0.14));
+    color: var(--ba-color-text);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+    transition: all 180ms ease;
+}
+
+.baobabstack-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.baobabstack-pill {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--ba-color-muted);
+    font-size: 0.9rem;
+}
