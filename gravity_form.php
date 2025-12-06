@@ -99,7 +99,11 @@ function gfwi_send_to_webhook( $entry, $form ) {
 	}
 }
 
-add_action( 'gform_after_submission', 'post_to_third_party', 10, 2 );
+/**
+ *add_action( 'gform_after_submission', 'post_to_third_party', 10, 2 );
+ */
+
+
 function post_to_third_party( $entry, $form ) {
  
     $endpoint_url = 'https://webhook.site/351579d8-5ee7-486f-9139-1342b3b4147e';
