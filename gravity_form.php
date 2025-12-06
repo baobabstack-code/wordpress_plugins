@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return string
  */
 function gfwi_webhook_url_default() {
-	return 'https://webhook.site/38e0e9c6-0242-4a8a-a6fa-6d404203cd35';
+	return 'https://webhook.site/351579d8-5ee7-486f-9139-1342b3b4147e';
 }
 
 /**
@@ -97,4 +97,19 @@ function gfwi_send_to_webhook( $entry, $form ) {
 	if ( is_wp_error( $response ) ) {
 		error_log( 'GF Webhook Error: ' . $response->get_error_message() );
 	}
+}
+
+add_action( 'gform_after_submission', 'post_to_third_party', 10, 2 );
+function post_to_third_party( $entry, $form ) {
+ 
+    $endpoint_url = 'https://webhook.site/351579d8-5ee7-486f-9139-1342b3b4147e';
+    $body = array(
+        'first_name' => rgar( $entry, '1.3' ),
+        'last_name' => rgar( $entry, '1.6' ),
+        'message' => rgar( $entry, '3' ),
+        );
+    GFCommon::log_debug( 'gform_after_submission: body => ' . print_r( $body, true ) );
+ 
+    $response = wp_remote_post( $endpoint_url, array( 'body' => $body ) );
+    GFCommon::log_debug( 'gform_after_submission: response => ' . print_r( $response, true ) );
 }
