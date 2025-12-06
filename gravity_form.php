@@ -28,7 +28,7 @@ function gfwi_init() {
 		return;
 	}
 
-	add_action( 'gform_after_submission', 'gfwi_send_to_webhook', 10, 2 );
+	add_action( 'gform_after_submission_1, 'gfwi_send_to_webhook', 10, 2 );
 }
 add_action( 'plugins_loaded', 'gfwi_init' );
 
